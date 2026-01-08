@@ -2,8 +2,6 @@
 
 Acoustic_Indices is an **Arduino library for ESP32** to extract global acoustic indices from audio signals for use as a biodiversity proxy, within the framework of Ecoacoustics.
 
-> **Note**: This library has been converted from the original Python implementation to C++ for use with ESP32 Arduino framework.
-
 ## Supported Indices
 
 This library implements the 7 most commonly used acoustic indices:
@@ -185,36 +183,9 @@ Typical computation times on ESP32 (240MHz) for 4096 samples @ 22050Hz:
 * SH: ~35ms
 * TH: ~30ms
 
-## Original Python Version
+## Citation
 
-This library is a port from the original Python implementation. If you need the Python version or want to process audio files on a PC, see the original Python code in this repository:
-
-* `acoustic_index.py` - Audio file handling
-* `compute_indice.py` - Index computations
-* `main_test_indices.py` - Test script
-
-## Prerequisites (Python version only)
-
- * [Numpy](http://www.numpy.org/)
- * [Scipy](http://www.scipy.org/)
- * [Matlplotlib](http://matplotlib.org/) (for graphing)
- * [PyYAML](http://pyyaml.org/wiki/PyYAMLDocumentation) (to read configuration file)
-
-## Usage (Python version)
-
-Test that everything is going well on one audio file:
-
-``` 
-$python main\_test\_indices.py 
-```
-
-Compute indices from a directory of audio files:
-```
-$python  main\_compute\_indices\_from\_dir
-```
-
-If you use this code, please cite: Patrice Guyot, & Alice Eldridge. (2023). Python implementation of acoustic indices and low level descriptors. Zenodo. https://doi.org/10.5281/zenodo.10391651
-
+If you use this library, please cite: Patrice Guyot, & Alice Eldridge. (2023). Python implementation of acoustic indices and low level descriptors. Zenodo. https://doi.org/10.5281/zenodo.10391651
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10391651.svg)](https://doi.org/10.5281/zenodo.10391651)
 

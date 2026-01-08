@@ -1,22 +1,3 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-*.egg-info/
-dist/
-build/
-
-# Audio files
-*.wav
-*.mp3
-*.flac
-
-# CSV output
-*.csv
-dict.csv
-
 # IDE
 .vscode/
 .idea/
