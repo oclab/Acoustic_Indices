@@ -1,0 +1,33 @@
+#######################################
+# Syntax Coloring Map For Acoustic_Indices
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+AudioFile	KEYWORD1
+AcousticIndices	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+computeACI	KEYWORD2
+computeADI	KEYWORD2
+computeAEI	KEYWORD2
+computeBI	KEYWORD2
+computeNDSI	KEYWORD2
+computeSH	KEYWORD2
+computeTH	KEYWORD2
+computeZCR	KEYWORD2
+computeRMSEnergy	KEYWORD2
+computeSpectralCentroid	KEYWORD2
+computeWaveSNR	KEYWORD2
+computeNBPeaks	KEYWORD2
+computeSpectrogram	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
