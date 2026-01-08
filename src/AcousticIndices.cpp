@@ -529,6 +529,7 @@ float AcousticIndices::computeADI(
     float freqStep
 ) {
     if (audioFile == nullptr) return 0.0f;
+    if (freqStep == 0.0f || maxFreq == 0.0f) return 0.0f;  // Prevent division by zero
     
     // Compute spectrogram for ADI
     float freqBandHz = maxFreq / freqStep;
@@ -633,6 +634,7 @@ float AcousticIndices::computeAEI(
     float freqStep
 ) {
     if (audioFile == nullptr) return 0.0f;
+    if (freqStep == 0.0f || maxFreq == 0.0f) return 0.0f;  // Prevent division by zero
     
     // Compute spectrogram for AEI
     float freqBandHz = maxFreq / freqStep;

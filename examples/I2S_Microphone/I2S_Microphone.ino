@@ -25,7 +25,7 @@
 #define I2S_SAMPLE_RATE 22050
 #define I2S_BCLK_PIN    33
 #define I2S_LRC_PIN     25
-#define I2S_DOUT_PIN    -1  // Not used for input
+#define I2S_DOUT_PIN    -1  // Not used for microphone input
 #define I2S_DIN_PIN     32
 
 // Audio buffer configuration
