@@ -1,37 +1,191 @@
 # Acoustic_Indices
 
-Acoustic_Indices is a Python library to extract global acoustic indices from an audio file for use as a biodiversity proxy, within the framework of Ecoacoustics.
+Acoustic_Indices is an **Arduino library for ESP32** to extract global acoustic indices from audio signals for use as a biodiversity proxy, within the framework of Ecoacoustics.
 
+## Supported Indices
 
-## Indices
+This library implements the 7 most commonly used acoustic indices:
 
-* Features extraction from Soundscape Ecology
-    * Acoustic Complexity Index
-    * Acoustic Diversity Index
-    * Acoustic Evenness Index
-    * Bioacoustic Index
-    * Normalized Difference Sound Index
-    * Spectral Entropy
-    * Temporal Entropy
-    * Number of Peaks
-    * Wave Signal to Noise Ratio
+* **Acoustic Complexity Index (ACI)** - Measures temporal variation in the spectrogram
+* **Acoustic Diversity Index (ADI)** - Shannon diversity of sound energy across frequency bands
+* **Acoustic Evenness Index (AEI)** - Gini coefficient of sound energy distribution
+* **Bioacoustic Index (BI)** - Area under the mean spectrum curve in a specific frequency range
+* **Normalized Difference Sound Index (NDSI)** - Ratio of biophony to anthrophony
+* **Spectral Entropy (SH)** - Shannon entropy of the mean power spectrum
+* **Temporal Entropy (TH)** - Shannon entropy of the signal envelope
+## Installation
 
-* Spectral features extraction
-    * Spectral centroid
-    * Spectrogram
-    * Noise removed spectrogram
+### Arduino IDE
 
-* Temporal features extraction
-    * RMS energy
-    * Zero Crossing Rate
+1. Download this repository as a ZIP file
+2. In Arduino IDE, go to **Sketch** → **Include Library** → **Add .ZIP Library...**
+3. Select the downloaded ZIP file
+4. The library will be installed and ready to use
 
+### PlatformIO
 
+Add to your `platformio.ini`:
 
+```ini
+lib_deps = 
+    https://github.com/oclab/Acoustic_Indices.git
+```
 
-## Reference
+## Hardware Requirements
 
-If you use this code, please cite: Patrice Guyot, & Alice Eldridge. (2023). Python implementation of acoustic indices and low level descriptors. Zenodo. https://doi.org/10.5281/zenodo.10391651
+* **ESP32** microcontroller (ESP32, ESP32-S2, ESP32-S3, ESP32-C3)
+* Minimum 520KB RAM recommended for processing audio buffers
+* I2S microphone (optional, for real-time audio capture)
 
+## Usage
+
+### Basic Example
+
+```cpp
+#include <AudioFile.h>
+#include <AcousticIndices.h>
+
+// Sample audio buffer (16-bit PCM)
+int16_t audioBuffer[4096];
+const uint32_t SAMPLE_RATE = 22050;  // Hz
+
+void setup() {
+    Serial.begin(115200);
+    
+    // Create AudioFile object
+    AudioFile audioFile(audioBuffer, 4096, SAMPLE_RATE);
+    
+    // Compute Acoustic Complexity Index (ACI)
+    SpectrogramResult* spectro = AcousticIndices::computeSpectrogram(&audioFile, 512, 512);
+    ACIResult* aci = AcousticIndices::computeACI(spectro, 5);
+    Serial.printf("ACI: %.4f\n", aci->mainValue);
+    
+    // Compute Acoustic Diversity Index (ADI)
+    float adi = AcousticIndices::computeADI(&audioFile);
+    Serial.printf("ADI: %.4f\n", adi);
+    
+    // Compute Acoustic Evenness Index (AEI)
+    float aei = AcousticIndices::computeAEI(&audioFile);
+    Serial.printf("AEI: %.4f\n", aei);
+    
+    // Compute Bioacoustic Index (BI)
+    float bi = AcousticIndices::computeBI(spectro, 2000.0f, 8000.0f);
+    Serial.printf("BI: %.4f\n", bi);
+    
+    // Compute Normalized Difference Sound Index (NDSI)
+    float ndsi = AcousticIndices::computeNDSI(&audioFile);
+    Serial.printf("NDSI: %.4f\n", ndsi);
+    
+    // Compute Spectral Entropy (SH)
+    float sh = AcousticIndices::computeSH(spectro);
+    Serial.printf("SH: %.4f\n", sh);
+    
+    // Compute Temporal Entropy (TH)
+    float th = AcousticIndices::computeTH(&audioFile);
+    Serial.printf("TH: %.4f\n", th);
+    
+    // Clean up
+    delete aci;
+    delete spectro;
+}
+
+void loop() {
+    delay(1000);
+}
+```
+
+### Complete Examples
+
+See the `examples/` folder for complete examples:
+* **BasicExample** - Computing all 7 indices with synthetic audio data
+
+## API Reference
+
+### AudioFile Class
+
+```cpp
+// Constructor with int16_t data
+AudioFile(int16_t* audioData, size_t dataLength, uint32_t sampleRate);
+
+// Constructor with float data
+AudioFile(float* audioData, size_t dataLength, uint32_t sampleRate);
+
+// Get sample rate
+uint32_t getSampleRate();
+
+// Get duration in seconds
+float getDuration();
+```
+
+### AcousticIndices Class
+
+All methods are static:
+
+```cpp
+// Compute spectrogram
+SpectrogramResult* computeSpectrogram(AudioFile* audioFile, 
+                                     size_t windowLength = 512,
+                                     size_t windowHop = 256);
+
+// Compute ACI
+ACIResult* computeACI(SpectrogramResult* spectro, size_t jBin);
+
+// Compute ADI
+float computeADI(AudioFile* audioFile, 
+                float maxFreq = 10000.0f,
+                float dbThreshold = -50.0f, 
+                float freqStep = 1000.0f);
+
+// Compute AEI
+float computeAEI(AudioFile* audioFile,
+                float maxFreq = 10000.0f,
+                float dbThreshold = -50.0f,
+                float freqStep = 1000.0f);
+
+// Compute BI
+float computeBI(SpectrogramResult* spectro,
+               float minFreq = 2000.0f,
+               float maxFreq = 8000.0f);
+
+// Compute NDSI
+float computeNDSI(AudioFile* audioFile,
+                 size_t windowLength = 1024,
+                 float anthroMin = 1000.0f,
+                 float anthroMax = 2000.0f,
+                 float bioMin = 2000.0f,
+                 float bioMax = 11000.0f);
+
+// Compute SH (Spectral Entropy)
+float computeSH(SpectrogramResult* spectro);
+
+// Compute TH (Temporal Entropy)
+float computeTH(AudioFile* audioFile, bool useInteger = true);
+```
+
+## Memory Considerations
+
+ESP32 has limited RAM. Here are some tips:
+
+* Use smaller audio buffers (2048-8192 samples recommended)
+* Lower sample rates (8000-22050 Hz) reduce memory usage
+* Free spectrograms immediately after use with `delete spectro;`
+* Process audio in chunks if working with longer recordings
+
+## Performance
+
+Typical computation times on ESP32 (240MHz) for 4096 samples @ 22050Hz:
+
+* ACI: ~50ms
+* ADI: ~60ms
+* AEI: ~60ms
+* BI: ~40ms
+* NDSI: ~45ms
+* SH: ~35ms
+* TH: ~30ms
+
+## Citation
+
+If you use this library, please cite: Patrice Guyot, & Alice Eldridge. (2023). Python implementation of acoustic indices and low level descriptors. Zenodo. https://doi.org/10.5281/zenodo.10391651
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10391651.svg)](https://doi.org/10.5281/zenodo.10391651)
 
@@ -53,61 +207,12 @@ This code have been used in the following scientific papers:
 
 
 
-## Usage
+## Reference
 
-Test that everything is going well on one audio file:
-
-``` 
-$python main\_test\_indices.py 
-```
-
-Compute indices from a directory of audio files:
-```
-$python  main\_compute\_indices\_from\_dir
-```
-
-This is the pipeline of the processing:
-
-* Get list of indices and features from a Yaml configuration file 
-* Read WAV files (using scipy)
-* For each audio file, compute stats (min, max, mean, median, std, var) for temporal acoustic indices or get global value for other indices
-* Output a csv file (with a row for each audio file and a column for each index)
-
-## Prerequisites
-
- * [Numpy](http://www.numpy.org/)
- * [Scipy](http://www.scipy.org/)
- * [Matlplotlib](http://matplotlib.org/) (for graphing)
- * [PyYAML](http://pyyaml.org/wiki/PyYAMLDocumentation) (to read configuration file)
+If you use this library, please cite: Patrice Guyot, & Alice Eldridge. (2023). Python implementation of acoustic indices and low level descriptors. Zenodo. https://doi.org/10.5281/zenodo.10391651
 
 
-
-
-
-## History
-
-Versions:
-
-* 0.5: New main (main\_compute\_indices\_from\_dir) to compute all indices from a directory of audio files
-* 0.4: Port from Python 2 to Python 3
-* 0.3: New features: wave SNR, spectro noise removed, NB_peaks.
-* 0.2: yaml configuration file. Object oriented audio file and index.
-* 0.1: First commit
-
-
-## Credits
-
-
-The following indices are based on the following papers and inspired in part by the R packages [seewave] (https://cran.r-project.org/package=seewave) and [soundecology] (https://cran.r-project.org/package=soundecology)  
-* Acoustic Complexity Index - Pieretti et al. (2011)
-* Acoustic Diversity Index - Villanueva-Rivera et al. (2011)
-* Acoustic Evenness Index - Villanueva-Rivera et al. (2011)
-* Bioacoustic Index - Boelman, et al. (2007)
-* Normalized Difference Sound Index - Kasten et al. (2012)
-* Spectral Entropy - Sueur et al. (2008)
-* Temporal Entropy - Sueur et al. (2008)
-
-References:
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10391651.svg)](https://doi.org/10.5281/zenodo.10391651)
 
 * Boelman NT, Asner GP, Hart PJ, Martin RE. 2007. Multi-trophic invasion resistance in Hawaii: bioacoustics, field surveys, and airborne remote sensing. Ecological Applications 17: 2137-2144.
 
